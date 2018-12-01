@@ -3,11 +3,13 @@ import numpy as np
 
 faceCascade = cv2.CascadeClassifier("cascade.xml")
 eyeCascade = cv2.CascadeClassifier("haarcascade_eye.xml")
-cam = cv2.VideoCapture(1)
 
-def detectHat(image):
+def confirmHat(image):
     b,g,r = cv2.split(image/255.0)
-    y = 16+0.299*r+0.578*g+0.114*b
+    avg = np.mean(image, axis=(0,1))
+#    print(avg)
+    return avg[0] > avg[1]+10 and avg[0] > avg[2]
+    '''y = 16+0.299*r+0.578*g+0.114*b
     cb = 128+(-37.797*r-74.203*g+112*b)
     cr = 128+(112*r-93.786*g-18.214*b)
     ycbcr = cv2.merge((y,cb,cr))
@@ -24,14 +26,13 @@ def detectHat(image):
         return False
     avg_color = np.mean(colors, axis=0)
     angle = np.arctan(avg_color[1]/avg_color[2])
-    #print(angle)
+    print(angle)
     if angle > -1.05 and angle < -.9:
         return True
-    return False
+    return False'''
     #cv2.imshow("color", color)
 
-while True:
-    _, frame = cam.read()
+def detectHat(frame):
     grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = faceCascade.detectMultiScale(grey,
                                          scaleFactor=1.1,
@@ -52,14 +53,23 @@ while True:
     for (x, y, w, h) in confirmed_faces:
                 hat = frame[max(y-h/2,0):y,x:x+w]
                 #cv2.imshow("hat",hat)
-                detected_hat = detectHat(hat)
+                detected_hat = confirmHat(hat)
                 #cv2.rectangle(frame, (x,y), (x+w, y-h/2), (255,0,0), 2)
                 if detected_hat:
                     cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                    return True
                 else:
                     cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
-                                        
-    cv2.imshow("faces", frame)
-    cv2.waitKey(1)
+
+    return False
+
+# Main
+if __name__ == '__main__':
+    cam = cv2.VideoCapture(0)
+    while True:
+        _, frame = cam.read()
+        detectHat(frame)
+        cv2.imshow("faces", frame)
+        cv2.waitKey(1)
 
 
