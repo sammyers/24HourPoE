@@ -20,8 +20,12 @@ def detectHat(image):
             if np.sqrt((point[1]-128)**2 + (point[2]-128)**2) >  16:
                 color[int(point[1]),int(point[2])] = image[y,x]
                 colors.append(point - 128)
+    if len(colors) == 0:
+        return False
     avg_color = np.mean(colors, axis=0)
-    if avg_color[1] < 0 and avg_color[2] > 0:
+    angle = np.arctan(avg_color[1]/avg_color[2])
+    #print(angle)
+    if angle > -1.05 and angle < -.9:
         return True
     return False
     #cv2.imshow("color", color)
@@ -51,9 +55,9 @@ while True:
                 detected_hat = detectHat(hat)
                 #cv2.rectangle(frame, (x,y), (x+w, y-h/2), (255,0,0), 2)
                 if detected_hat:
-                    cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
-                else:
                     cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                else:
+                    cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
                                         
     cv2.imshow("faces", frame)
     cv2.waitKey(1)
