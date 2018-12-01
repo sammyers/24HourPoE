@@ -53,14 +53,14 @@ class FaceIdentifier:
          (View in source code to see train_dir example tree structure)
          Structure:
             <train_dir>/
-            ├── <person1>/
-            │   ├── <somename1>.jpeg
-            │   ├── <somename2>.jpeg
-            │   ├── ...
-            ├── <person2>/
-            │   ├── <somename1>.jpeg
-            │   └── <somename2>.jpeg
-            └── ...
+            /-- <person1>/
+            /   /-- <somename1>.jpeg
+            /   /-- <somename2>.jpeg
+            /   /-- ...
+            /-- <person2>/
+            /   /-- <somename1>.jpeg
+            /   /-- <somename2>.jpeg
+            /-- ...
         :param n_neighbors: (optional) number of neighbors to weigh in classification. Chosen automatically if not specified
         :param knn_algo: (optional) underlying data structure to support knn.default is ball_tree
         :param verbose: verbosity of training
