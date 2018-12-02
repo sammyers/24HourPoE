@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style type="text/css">
+    @page {
+      size: "A4";
+      margin-left: 0cm;
+      margin-top: 0cm;
+      margin-right: 0cm;
+      margin-bottom: 0cm;
+    }
+
+    html {
+      background: url("data:image/png;base64, {{ background }}") no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    body {
+      position: relative;
+      width: 100%;
+    }
+
+    tbody {
+      border: 1px solid black;
+    }
+
+    #form-grid {
+      width: 75%;
+      margin: auto;
+      text-align: center;
+      table-layout: fixed;
+      border-spacing: 0;
+    }
+
+    #qr-code {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border: 1px solid black;
+    }
+
+    #header {
+      white-space: nowrap;
+    }
+
+    #phantom-qr-code {
+      visibility: hidden;
+    }
+
+    #title {
+      vertical-align: bottom;
+      padding-bottom: 15px;
+    }
+
+    .form-field {
+      border: 1px solid black;
+      padding: 20px 5px;
+    }
+    
+    .question {
+      font-weight: bold;
+      float: left;
+    }
+
+    .response {
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <img src="data:image/png;base64, {{ qr_image }}" alt="QR Code Image" id="qr-code">
+  <table id="form-grid">
+    <thead>
+      <tr id="header">
+        <th colspan="1">
+          <img src="data:image/png;base64, {{ qr_image }}" alt="QR Code Image" id="phantom-qr-code">
+        </th>
+        <th colspan="4" id="title">
+          <h2>Buffalonia Border Entry Application</h3>
+        </th>
+        <th colspan="1"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in responses %}
+        <tr>
+          {% for question, response in row %}
+            <td colspan="2" class="form-field">
+              <div class="question">{{ question }}</div>
+              <div class="response">{{ response }}</div>
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
