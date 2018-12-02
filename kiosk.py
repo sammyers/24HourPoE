@@ -6,6 +6,7 @@ sys.path = [p for p in sys.path if 'ros' not in p]
 import requests
 import time
 import cv2
+import easygui
 from arduino_comm import ArduinoComm
 from FacialRecognition.identify_face import FaceIdentifier
 from BuffaloHat.buffalo_detect import detectHat
@@ -80,9 +81,18 @@ class Kiosk:
             result = response.json()
             if result['admitted']:
                 print('Application approved')
-                # self.arduino_comm.approve()
+                easygui.msgbox(
+                    "You may enter Bufalonia. Congratulations.",
+                    title='Accepted',
+                    ok_button='Yay!'
+                )
             else:
                 print('Application denied')
+                easygui.msgbox(
+                    f"You have been rejected from Bufalonia.\nReason: {result['reason']}",
+                    title='Rejected',
+                    ok_button='I accept my fate'
+                )
                 # self.arduino_comm.reject()
 
     def run(self):
