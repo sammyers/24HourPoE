@@ -1,7 +1,19 @@
+'''
+Response format:
+  group_name = 'calibration' | 'short_answer' | 'yes_no' | free_response
+
+  {
+    <group name>: [
+      (<question>, <answer>)
+    ]
+  }
+'''
+
 questions = {
   "groups": [
     {
-      "name": "Calibration Questions",
+      "name": "calibration",
+      "label": "Calibration Questions",
       "type": "checkbox",
       "questions": [
         "Yes?",
@@ -9,7 +21,8 @@ questions = {
       ]
     },
     {
-      "name": "Short Answer",
+      "name": "short_answer",
+      "label": "",
       "type": "text",
       "questions": [
         "First Name",
@@ -29,7 +42,8 @@ questions = {
       ]
     },
     {
-      "name": "",
+      "name": "yes_no",
+      "label": "",
       "type": "select",
       "questions": [
         {
@@ -44,7 +58,8 @@ questions = {
       ]
     },
     {
-      "name": "Free Response",
+      "name": "free_response",
+      "label": "Free Response",
       "type": "textfield",
       "questions": [
         "Fish Friday?"
