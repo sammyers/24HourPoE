@@ -57,7 +57,7 @@ def evaluate_responses(responses, names, wearing_hat, rules):
               return maybe_fail("Net worth out of range")
             elif net_worth < rules['min_wealth']:
               return maybe_fail("You're too poor")
-          except e:
+          except Exception:
             return maybe_fail("Net worth must be an INTEGER")
         elif question == "Country of Origin":
           if answer in rules['not_allowed_countries']:
@@ -71,7 +71,7 @@ def evaluate_responses(responses, names, wearing_hat, rules):
             ssn = int(answer)
             if ssn % 2 == 0:
               return maybe_fail("SSN must be an odd number")
-          except e:
+          except Exception:
             return maybe_fail("First four digits of mother's maiden social security number must be an INTEGER")
 
       if group == "yes_no":
