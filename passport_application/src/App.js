@@ -3,7 +3,6 @@ import { Header, Button, Icon } from 'semantic-ui-react';
 
 import Questions from './Questions';
 
-import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
@@ -55,7 +54,7 @@ class App extends Component {
       this.setState({ phase: 'submitted' });
       setTimeout(() => this.setState({
         phase: 'loaded',
-        // responses: this.getBlankResponses(this.state.groups),
+         responses: this.getBlankResponses(this.state.groups),
       }), 4000);
     }
   };
@@ -67,10 +66,9 @@ class App extends Component {
       case 'loading':
         ui = (
           <div>
-            <img src={logo} className="App-logo" alt="logo" />
-            <p>
+            <Header size='medium'>
               Loading...
-            </p>
+            </Header>
           </div>
         );
         break;
