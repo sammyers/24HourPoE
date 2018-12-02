@@ -5,32 +5,47 @@ import base64
 import requests
 from weasyprint import HTML
 from itertools import zip_longest
+from pprint import pprint
+from .questions import questions
 
 PRINT_URL = 'http://ac314x01.olin.edu/supload/xerox.set'
 
-sample_responses = [
-  ('First Name', 'Sam'),
-  ('Last Name', 'Myers'),
-  ('Maiden Name', 'Gamgee'),
-  ('Bachelor Name', 'Jackson'),
-  ('Prefix', 'Rabbi'),
-  ('Suffix', 'Esq.')
-]
+column_sizes = {
+  'calibration': 3,
+  'short_answer': 4,
+  'yes_no': 6,
+  'free_response': 12
+}
 
-def group_pairs(pairs, group_size):
+def group_pairs(pairs, group_size=3):
   return list(zip_longest(*(iter(pairs),) * group_size))
 
 def get_base_64_string(data):
   return base64.b64encode(data).decode('ascii')
 
-def group_responses(responses):
-  return group_responses(responses, 3)
+def get_question_pair(q, responses, group_name):
+  question = q['question'] if type(q) is dict else q
+  return (question, responses[group_name][question])
+
+def format_group(group, responses):
+  return {
+    'name': group['name'],
+    'questions': group_pairs([
+      get_question_pair(q, responses, group['name'])
+      for q in group['questions']
+    ], 12 // column_sizes[group['name']]),
+    'colspan': column_sizes[group['name']]
+  }
+
+def format_responses(responses):
+  formatted = [format_group(group, responses) for group in questions['groups']]
+  return formatted
 
 
 def get_qr_code_image(qr_data):
   qr = pyqrcode.create(qr_data)
   stream = io.BytesIO()
-  qr.png(stream, scale=6)
+  qr.png(stream, scale=4)
   encoded = get_base_64_string(stream.getvalue())
   return encoded
 
@@ -60,7 +75,7 @@ def write_to_pdf_file(html, filename):
 
 def get_form_pdf(qr_id, responses):
   qr_image = get_qr_code_image(qr_id)
-  html = render_template(qr_image=qr_image, responses=group_responses(responses))
+  html = render_template(qr_image=qr_image, responses=format_responses(responses))
   return html_to_pdf(html)
 
 def network_print(pdf):
@@ -73,6 +88,10 @@ def network_print(pdf):
     'test.pdf': io.BytesIO(pdf)
   }
   response = requests.post(PRINT_URL, files=files, data=form_data)
+
+def save_pdf(pdf):
+  with open('test.pdf', 'wb') as f:
+    f.write(pdf)
 
 if __name__ == '__main__':
   pdf = html_to_pdf(html)

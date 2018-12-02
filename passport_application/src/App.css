@@ -8,6 +8,7 @@
 }
 
 .App-header {
+  padding: 1em;
   background-color: #282c34;
   min-height: 100vh;
   display: flex;
@@ -15,11 +16,48 @@
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.ui.form {
+  width: 75%;
+}
+
+label, .header {
+  color: white!important;
+}
+
+.question-group {
+  margin-top: 2em;
+}
+
+.question-list, .radio-group {
+  display: flex!important;
+  flex-direction: column!important;
+  align-items: center;
+}
+
+.field {
+  display: flex!important;
+  flex-direction: column!important;
+  align-items: center!important;
+}
+
+.ui.input {
+  width: initial!important;
+}
+
+.radio-field {
+  display: flex!important;
+  flex-direction: column!important;
+  align-items: center;
+}
+
+.radio-group {
+  align-items: flex-start;
+}
+
+.field + .field {
+  margin-top: 1em!important;
 }
 
 @keyframes App-logo-spin {
