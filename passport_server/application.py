@@ -80,6 +80,8 @@ def check_application():
   json = request.get_json()
   responses = retrieve_responses(json.get('qrId'))
   rules = retrieve_rules()
+  print(responses)
+  print(rules)
   admitted, reason = evaluate_responses(
     responses,
     json.get('names'),
