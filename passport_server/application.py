@@ -82,7 +82,7 @@ def check_application():
   rules = retrieve_rules()
   print(responses)
   print(rules)
-  admitted, reason = evaluate_responses(
+  reason, admitted = evaluate_responses(
     responses,
     json.get('names'),
     json.get('wearingHat'),

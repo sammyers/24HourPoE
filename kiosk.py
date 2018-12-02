@@ -89,7 +89,7 @@ class Kiosk:
             else:
                 print('Application denied')
                 easygui.msgbox(
-                    f"You have been rejected from Bufalonia.\nReason: {result['reason']}",
+                    "You have been rejected from Bufalonia.\nReason: {}".format(result['reason']),
                     title='Rejected',
                     ok_button='I accept my fate'
                 )
