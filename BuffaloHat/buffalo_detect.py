@@ -1,8 +1,10 @@
+import sys
+sys.path = [p for p in sys.path if 'ros' not in p]
 import cv2
 import numpy as np
 
-faceCascade = cv2.CascadeClassifier("cascade.xml")
-eyeCascade = cv2.CascadeClassifier("haarcascade_eye.xml")
+faceCascade = cv2.CascadeClassifier("BuffaloHat/cascade.xml")
+eyeCascade = cv2.CascadeClassifier("BuffaloHat/haarcascade_eye.xml")
 
 def confirmHat(image):
     b,g,r = cv2.split(image/255.0)
@@ -38,7 +40,7 @@ def detectHat(frame):
                                          scaleFactor=1.1,
                                          minNeighbors=5,
                                          minSize=(30, 30),
-                                         flags = cv2.cv.CV_HAAR_SCALE_IMAGE)
+                                         flags = cv2.CASCADE_SCALE_IMAGE)
     confirmed_faces = []
     for (x, y, w, h) in faces:
         
@@ -47,7 +49,7 @@ def detectHat(frame):
                                        scaleFactor=1.1,
                                        minNeighbors=5,
                                        minSize=(30, 30),
-                                       flags = cv2.cv.CV_HAAR_SCALE_IMAGE)
+                                       flags = cv2.CASCADE_SCALE_IMAGE)
         if len(eyes) > 1:
             confirmed_faces.append((x,y,w,h))
     for (x, y, w, h) in confirmed_faces:

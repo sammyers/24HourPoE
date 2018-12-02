@@ -1,33 +1,43 @@
 """
 This file runs on a Raspberry Pi on the kiosk.
 """
+import sys
+sys.path = [p for p in sys.path if 'ros' not in p]
 import time
 import cv2
 from FacialRecognition.identify_face import FaceIdentifier
+from BuffaloHat.buffalo_detect import detectHat
+from QRScan.scan import decode
 
 
 class Kiosk:
 
-    def __init__(self, qr_code_camera_id, mugshot_camera_id):
+    def __init__(self, qr_code_camera_id, mugshot_camera_id, facial_recognition_model_path):
         self.running = True
         self.looking_for_application = True
         self.qr_code_camera = cv2.VideoCapture(qr_code_camera_id) if qr_code_camera_id is not None else None
         self.mugshot_camera = cv2.VideoCapture(mugshot_camera_id) if mugshot_camera_id is not None else None
-        self.face_identifier = FaceIdentifier()
+        self.face_identifier = FaceIdentifier(facial_recognition_model_path)
 
     def check_for_qr_code(self):
-        raise NotImplementedError()
+        # Grab a frame from the QR code camera
+        _, frame = self.qr_code_camera.read()
+
+        qr_codes = decode(frame)
+        if len(qr_codes) == 0:
+            return None
+        return qr_codes[0].data.decode()
 
     def process_image(self):
         # Grab a frame from the front-facing camera
-        ret, frame = self.mugshot_camera.read()
+        _, frame = self.mugshot_camera.read()
 
         # Resolve the names of all the people in the frame
         faces = self.face_identifier.predict_from_cv2_frame(frame)
-        names_in_frame = {name for name, loc in faces}
+        names_in_frame = list({name for name, loc in faces})
 
-        # TODO: Look for a buffalo hat
-        wearing_buffalo_hat = False
+        # Look for a buffalo hat
+        wearing_buffalo_hat = detectHat(frame)
 
         return names_in_frame, wearing_buffalo_hat
 
@@ -43,11 +53,17 @@ class Kiosk:
             if self.looking_for_application:
                 application_id = self.check_for_qr_code()
                 if application_id is not None:
-                    # TODO: Process app
-                    pass
+                    print('Read QR code:', application_id)
+
+                    names_in_frame, wearing_hat = self.process_image()
+                    print('Names in frame:', names_in_frame)
+                    print('Wearing hat:', wearing_hat)
 
             time.sleep(0.5)
 
 
 if __name__ == '__main__':
-    Kiosk(qr_code_camera_id=None, mugshot_camera_id=0).run()
+    Kiosk(qr_code_camera_id=1,
+          mugshot_camera_id=0,
+          facial_recognition_model_path='FacialRecognition/trained_knn_model.clf'
+          ).run()

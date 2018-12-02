@@ -43,7 +43,7 @@ class FaceIdentifier:
         # Load the KNN model
         self.knn_clf = None
         if os.path.isfile(model_save_path):
-            with open('trained_knn_model.clf', 'rb') as f:
+            with open(model_save_path, 'rb') as f:
                 self.knn_clf = pickle.load(f)
 
     def train(self, train_dir, n_neighbors=None, knn_algo='ball_tree', verbose=False):
