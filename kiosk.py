@@ -3,6 +3,7 @@ This file runs on a Raspberry Pi on the kiosk.
 """
 import sys
 sys.path = [p for p in sys.path if 'ros' not in p]
+import requests
 import time
 import cv2
 from arduino_comm import ArduinoComm
@@ -13,13 +14,14 @@ from QRScan.scan import read_qr_code
 
 class Kiosk:
 
-    def __init__(self, qr_code_camera_id, mugshot_camera_id, facial_recognition_model_path, frame_rate=10):
+    def __init__(self, qr_code_camera_id, mugshot_camera_id, facial_recognition_model_path, verification_endpoint, frame_rate=10):
         self.qr_code_camera = cv2.VideoCapture(qr_code_camera_id) if qr_code_camera_id is not None else None
         self.mugshot_camera = cv2.VideoCapture(mugshot_camera_id) if mugshot_camera_id is not None else None
         self.face_identifier = FaceIdentifier(facial_recognition_model_path)
-        # self.arduino_comm = ArduinoComm()
         self.frame_rate = frame_rate
         self.frames_left_to_drop = 0
+        self.verification_endpoint = verification_endpoint
+        self.arduino_comm = ArduinoComm()
 
     def check_cameras(self):
         # Grab a frame from the QR code camera
@@ -68,19 +70,20 @@ class Kiosk:
     def check_application_with_server(self, application_id, names, is_wearing_hat):
         print('Checking with server')
         # TODO: Send the data to the server
-        # Temporary behavior:
-        print(names)
-        if 'Kyle_Combes' in names or is_wearing_hat:
-            print('verified')
-            # self.arduino_comm.approve()
-            time.sleep(20)
-        else:
-            print('reject')
-            # self.arduino_comm.reject()
-            time.sleep(5)
-
-    def handle_server_response(self, response):
-        raise NotImplementedError()
+        request_params = {
+            'qrId': application_id,
+            'wearingHat': is_wearing_hat,
+            'names': names,
+        }
+        response = requests.post(self.verification_endpoint, json=request_params)
+        if response.ok:
+            result = response.json()
+            if result['admitted']:
+                print('Application approved')
+                # self.arduino_comm.approve()
+            else:
+                print('Application denied')
+                # self.arduino_comm.reject()
 
     def run(self):
         while True:
@@ -90,5 +93,6 @@ class Kiosk:
 if __name__ == '__main__':
     Kiosk(qr_code_camera_id=1,
           mugshot_camera_id=0,
-          facial_recognition_model_path='FacialRecognition/trained_knn_model.clf'
+          facial_recognition_model_path='FacialRecognition/trained_knn_model.clf',
+          verification_endpoint='http://10.7.24.49:5000/check-application'
           ).run()
