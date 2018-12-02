@@ -1,5 +1,7 @@
 from .questions import questions
 import requests
+import numpy as np
+import random
 
 def get_sentiment(text):
     url = "http://text-processing.com/api/sentiment/"
@@ -12,6 +14,17 @@ def get_sentiment(text):
         return 1
     return 0
 
+def generate_rules():
+  rules = {}
+  rules['max_wealth'] = np.random.randint(10000,10000000)
+  rules['min_wealth'] = np.rangom.randint(1000,10000)
+  rules['not_allowed_countries'] = random.sample(["United States", "USA", "US", "Canda", "China", "UK", "England", "Vatican City", "Somalia"], 4)
+  rules['not_allowed_os'] = random.sample(["Linux", "Mac", "OSX", "Ubuntu", "Windows", "Gentoo", "Debian"], 4)
+  rules['cereal'] = random.choice(['yes','no'])
+  rules['butter'] = random.choice(['yes','no'])
+  return rules
+  
+  
 def evaluate_responses(responses, names, wearing_hat, rules):
   print(responses)
   if wearing_hat:
@@ -46,10 +59,10 @@ def evaluate_responses(responses, names, wearing_hat, rules):
               except e:
                 return "Net worth must be an INTEGER", False
             elif question == "Country of Origin":
-              if answer not in rules['allowed_countries']:
+              if answer in rules['not_allowed_countries']:
                 return "Buffolonia is not currently accepting Visa applications from your country",False
             elif question == "Favorite OS":
-              if answer not in rules['allowed_os']:
+              if answer in rules['not_allowed_os']:
                 return "Buffolonia thinks your OS is trash", False
             elif question == "First four digits of mother's maiden social security number":
               ssn = 0
