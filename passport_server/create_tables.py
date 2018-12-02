@@ -9,6 +9,10 @@ def create_tables():
               CREATE TABLE IF NOT EXISTS applicants
               (id text PRIMARY KEY, responses text)
               ''')
+  cur.execute('''
+              CREATE TABLE IF NOT EXISTS rules
+              (id integer PRIMARY KEY, rule_set text)
+              ''')
   conn.commit()
   conn.close()
 

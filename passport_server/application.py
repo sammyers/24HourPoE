@@ -5,7 +5,7 @@ import json
 from .questions import questions
 from .pdf_form import get_form_pdf, network_print, save_pdf
 from .create_tables import DB_NAME
-from .checkpoint import evaluate_responses
+from .checkpoint import evaluate_responses, generate_rules
 
 app = Flask(__name__)
 
@@ -21,7 +21,6 @@ def query_db(query, args=(), one=False):
   cur.execute(query, args)
   conn.commit()
   rv = cur.fetchall()
-  conn.close()
   return (rv[0] if rv else None) if one else rv
 
 def save_responses(id, responses):
@@ -38,6 +37,21 @@ def retrieve_responses(id):
     True
   )
   return json.loads(result[0]) if result else None
+
+def retrieve_rules():
+  result = query_db(
+    'SELECT rule_set FROM rules WHERE id = 1',
+    (),
+    True
+  )
+  return json.loads(result[0]) if result else None
+
+def save_rules(rules):
+  rules_string = json.dumps(rules)
+  query_db(
+    'INSERT OR REPLACE INTO rules (id, rule_set) VALUES (1, ?)',
+    (rules_string,)
+  )
 
 @app.route('/questions')
 def get_questions():
@@ -65,8 +79,24 @@ def get_responses():
 def check_application():
   json = request.get_json()
   responses = retrieve_responses(json.get('qrId'))
-  admitted, reason = evaluate_responses(responses, json.get('names'), json.get('wearingHat'))
+  rules = retrieve_rules()
+  admitted, reason = evaluate_responses(
+    responses,
+    json.get('names'),
+    json.get('wearingHat'),
+    rules
+  )
   return jsonify({ 'admitted': admitted, 'reason': reason })
+
+@app.route('/rules')
+def get_rules():
+  return jsonify(retrieve_rules())
+
+@app.route('/change-rules', methods=['POST'])
+def change_rules():
+  rules = generate_rules()
+  save_rules(rules)
+  return 'New rules saved', 200
 
 @app.teardown_appcontext
 def close_connection(exception):
