@@ -17,7 +17,7 @@ class Kiosk:
         self.qr_code_camera = cv2.VideoCapture(qr_code_camera_id) if qr_code_camera_id is not None else None
         self.mugshot_camera = cv2.VideoCapture(mugshot_camera_id) if mugshot_camera_id is not None else None
         self.face_identifier = FaceIdentifier(facial_recognition_model_path)
-        self.arduino_comm = ArduinoComm()
+        # self.arduino_comm = ArduinoComm()
         self.frame_rate = frame_rate
         self.frames_left_to_drop = 0
 
@@ -44,9 +44,21 @@ class Kiosk:
                 print('No QR code found.')
 
     def check_identity(self, frame):
-        # Resolve the names of all the people in the frame
-        faces = self.face_identifier.predict_from_cv2_frame(frame)
-        names_in_frame = list({name for name, loc in faces})
+        names_in_frame = dict()
+
+        # Take 5 readings to get a more accurate idea of who is in the frame
+        for _ in range(5):
+            # Resolve the names of all the people in the frame
+            faces = self.face_identifier.predict_from_cv2_frame(frame)
+            names = {name for name, loc in faces}
+            for name in names:
+                if name in names_in_frame:
+                    names_in_frame[name] += 1
+                else:
+                    names_in_frame[name] = 1
+
+        # Only keep names that have appeared a lot
+        names_in_frame = [name for name, count in names_in_frame.items() if count > 3]
 
         # Look for a buffalo hat
         wearing_buffalo_hat = detectHat(frame)
@@ -57,13 +69,14 @@ class Kiosk:
         print('Checking with server')
         # TODO: Send the data to the server
         # Temporary behavior:
+        print(names)
         if 'Kyle_Combes' in names or is_wearing_hat:
             print('verified')
-            self.arduino_comm.approve()
+            # self.arduino_comm.approve()
             time.sleep(20)
         else:
             print('reject')
-            self.arduino_comm.reject()
+            # self.arduino_comm.reject()
             time.sleep(5)
 
     def handle_server_response(self, response):
