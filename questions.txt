@@ -1,0 +1,11 @@
+Calibration Questions: Yes? No?
+First Name,Last Name, Maiden Name, Batchelor Name, Title, Suffix, Prefix, 
+Net Worth,
+Highest Level of Education,
+Do intend to commit crimes?,
+Country of Origin,
+First Language, First Programming language, Favourite OS,
+First four digits of your mother's maiden social security number,
+Milk Before or After Cereal?
+Butter side up or down?
+Fish Friday?
