@@ -1,3 +1,4 @@
+#include <Adafruit_MotorShield.h>
 /*     Simple Stepper Motor Control Exaple Code
  *      
  *  by Dejan Nedelkovski, www.HowToMechatronics.com
@@ -9,10 +10,19 @@
 #define DIR_PIN 4
 #define ACCEPT_POS 500
 #define DENY_POS 1000
+#define STAMP_TRAVEL_MS 1000
+#define STAMP_PAUSE_MS 300
+
+Adafruit_MotorShield AFMS = Adafruit_MotorShield();
+Adafruit_DCMotor *stampMotor = AFMS.getMotor(4);
 
 int curPos = 0;
 
 void setup() {
+  // Set up the Adafruit motor shield and stamp DC motor
+  AFMS.begin();
+  stampMotor->setSpeed(150);
+  
   // Sets the two pins as Outputs
   pinMode(STEP_PIN, OUTPUT); 
   pinMode(DIR_PIN, OUTPUT);
@@ -24,10 +34,10 @@ void loop() {
   // Look for command from the computer
   while (Serial.available() > 0) {
     String cmd = Serial.readString();
-    if (cmd == "a") {
+    if (cmd == "accept") {
       Serial.println("Stamping seal of approval.");
       acceptApplication();
-    } else if (cmd == "r") {
+    } else if (cmd == "reject") {
       Serial.println("Rejecting application.");
       rejectApplication();
     } else {
@@ -43,14 +53,16 @@ void rejectApplication() {
   // Move the gantry
   moveToPos(DENY_POS);
 
-  // TODO: Actuate the stamp
+  // Actuate the stamp
+  stamp();
 }
 
 void acceptApplication() {
   // Move the gantry
   moveToPos(ACCEPT_POS);
 
-  // TODO: Actuate the stamp
+  // Actuate the stamp
+  stamp();
 }
 
 void moveToPos(int pos) {
@@ -67,4 +79,14 @@ void moveToPos(int pos) {
     delayMicroseconds(500);
     curPos += step;
   }
+}
+
+void stamp() {
+  stampMotor->run(FORWARD);
+  delay(STAMP_TRAVEL_MS);
+  stampMotor->run(RELEASE);
+  delay(STAMP_PAUSE_MS);
+  stampMotor->run(BACKWARD);
+  delay(STAMP_TRAVEL_MS);
+  stampMotor->run(RELEASE);
 }
